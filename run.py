@@ -9,10 +9,11 @@ This script starts the FastAPI server which serves both:
 Usage:
     python run.py
     
-Then open http://localhost:8000 in your browser.
+Then open http://localhost:8080 in your browser.
 """
 
 import uvicorn
+import sys
 
 if __name__ == "__main__":
     print("🌟 Starting Autism Science Tutor...")
@@ -20,9 +21,13 @@ if __name__ == "__main__":
     print("📚 API docs available at http://localhost:8080/docs")
     print("-" * 50)
     
+    # Disable reload in production for faster startup
+    reload = "--reload" in sys.argv
+    
     uvicorn.run(
         "src.app.main:app",
         host="127.0.0.1",
         port=8080,
-        reload=True,
+        reload=reload,
+        log_level="info",
     )

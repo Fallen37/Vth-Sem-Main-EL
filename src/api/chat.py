@@ -29,8 +29,8 @@ class SendMessageRequest(BaseModel):
     
     session_id: Optional[UUID] = None
     content: str = Field(min_length=1)
-    input_type: InputType = InputType.TEXT
-    source: MessageRole = MessageRole.STUDENT
+    input_type: Optional[str] = "text"  # Accept string instead of enum
+    source: Optional[str] = "student"  # Accept string instead of enum
 
 
 class ComprehensionFeedbackRequest(BaseModel):
@@ -104,11 +104,22 @@ async def send_message(
     # Create chat orchestrator
     orchestrator = ChatOrchestrator(db=db)
     
+    # Convert string values to enums
+    try:
+        input_type = InputType(request.input_type or "text")
+    except (ValueError, KeyError):
+        input_type = InputType.TEXT
+    
+    try:
+        source = MessageRole(request.source or "student")
+    except (ValueError, KeyError):
+        source = MessageRole.STUDENT
+    
     # Process message
     user_input = UserInput(
-        type=request.input_type,
+        type=input_type,
         content=request.content,
-        source=request.source,
+        source=source,
     )
     
     response = await orchestrator.process_message(

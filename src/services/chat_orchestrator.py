@@ -124,7 +124,9 @@ class ChatOrchestrator:
     def __post_init__(self):
         """Initialize services lazily."""
         if self.rag_engine is None:
-            self.rag_engine = RAGEngine()
+            # Always use SimpleRAG for now since ChromaDB has dependency issues
+            from src.services.simple_rag import SimpleRAG
+            self.rag_engine = SimpleRAG(db_session=self.db)
 
     def _get_profile_service(self) -> ProfileService:
         """Get or create profile service."""
