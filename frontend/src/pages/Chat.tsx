@@ -12,6 +12,13 @@ interface Message {
   timestamp: Date;
 }
 
+interface TextbookSection {
+  id: string;
+  title: string;
+  content: string;
+  isHighlighted: boolean;
+}
+
 type AvatarState = 'idle' | 'listening' | 'thinking' | 'explaining';
 
 const Chat = () => {
@@ -22,7 +29,10 @@ const Chat = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [tutorState, setTutorState] = useState<AvatarState>('idle');
+  const [currentTextbook, setCurrentTextbook] = useState<TextbookSection[]>([]);
+  const [highlightedSections, setHighlightedSections] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textbookRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Add welcome message
@@ -67,10 +77,14 @@ const Chat = () => {
 
       setTutorState('explaining');
 
+      // Extract relevant sections from response
+      const relevantSections = response.sources?.map((s: any) => s.document_id) || [];
+      setHighlightedSections(relevantSections);
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.content || response.message || "I'm here to help! Could you tell me more about what you'd like to learn?",
+        content: response.message || "I'm here to help! Could you tell me more about what you'd like to learn?",
         timestamp: new Date(),
       };
 
@@ -112,24 +126,6 @@ const Chat = () => {
     }
   };
 
-  const getAvatarAnimation = () => {
-    switch (tutorState) {
-      case 'listening': return 'avatar-listening';
-      case 'thinking': return 'avatar-thinking';
-      case 'explaining': return 'avatar-explaining';
-      default: return 'avatar-idle';
-    }
-  };
-
-  const getStateLabel = () => {
-    switch (tutorState) {
-      case 'listening': return 'Listening...';
-      case 'thinking': return 'Thinking...';
-      case 'explaining': return 'Explaining...';
-      default: return 'Ready to help!';
-    }
-  };
-
   return (
     <div className="chat-container">
       <header className="chat-header">
@@ -137,63 +133,62 @@ const Chat = () => {
           ← Back
         </button>
         <div className="chat-title">
-          <h1>💬 Science Buddy</h1>
+          <h1>📚 Learn with Textbooks</h1>
         </div>
         <button className="calm-mode-btn" onClick={() => navigate('/calm')}>
           🧘
         </button>
       </header>
 
-      <div className="chat-content">
-        {/* Avatar Panel */}
-        <aside className="avatar-panel">
-          <div className={`tutor-avatar-large ${getAvatarAnimation()}`}>
-            <div className="avatar-face">
-              <span className="avatar-emoji-large">🤖</span>
-            </div>
-            <div className="avatar-state-indicator">
-              <span className={`state-dot ${tutorState}`}></span>
-              <span className="state-label">{getStateLabel()}</span>
-            </div>
+      <div className="chat-content split-layout">
+        {/* Textbook Viewer - Left Side */}
+        <div className="textbook-viewer">
+          <div className="textbook-header">
+            <h2>TEXTBOOK MATERIAL</h2>
           </div>
-          
-          <div className="student-avatar-small">
-            <span className="student-emoji">👤</span>
-            <span className="student-name">{user?.name}</span>
+          <div className="textbook-content" ref={textbookRef}>
+            {currentTextbook.length > 0 ? (
+              currentTextbook.map(section => (
+                <div 
+                  key={section.id}
+                  className={`textbook-section ${highlightedSections.includes(section.id) ? 'highlighted' : ''}`}
+                >
+                  <h3>{section.title}</h3>
+                  <p>{section.content}</p>
+                </div>
+              ))
+            ) : (
+              <div className="textbook-placeholder">
+                <p>Select a topic to view textbook material</p>
+              </div>
+            )}
           </div>
+        </div>
 
-          <div className="quick-topics">
-            <h3>Quick Topics</h3>
-            <button onClick={() => setInput("What is photosynthesis?")}>🌱 Photosynthesis</button>
-            <button onClick={() => setInput("Explain Newton's laws of motion")}>⚡ Newton's Laws</button>
-            <button onClick={() => setInput("What are atoms made of?")}>⚛️ Atoms</button>
-            <button onClick={() => setInput("How does the heart work?")}>❤️ Heart</button>
-          </div>
-        </aside>
-
-        {/* Messages Area */}
-        <main className="messages-area">
+        {/* Chat Interface - Right Side */}
+        <div className="chat-interface">
           <div className="messages-list">
             {messages.map(message => (
               <div key={message.id} className={`message ${message.role}`}>
-                <div className="message-avatar">
-                  {message.role === 'assistant' ? '🤖' : '👤'}
-                </div>
-                <div className="message-content">
-                  <p>{message.content}</p>
-                  <span className="message-time">
-                    {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
+                <div className="message-bubble">
+                  <div className="message-label">
+                    {message.role === 'assistant' ? 'Response from the AI' : 'Doubt from the user'}
+                  </div>
+                  <div className="message-content">
+                    <p>{message.content}</p>
+                  </div>
                 </div>
               </div>
             ))}
             {isLoading && (
               <div className="message assistant">
-                <div className="message-avatar">🤖</div>
-                <div className="message-content typing">
-                  <span className="typing-dot"></span>
-                  <span className="typing-dot"></span>
-                  <span className="typing-dot"></span>
+                <div className="message-bubble">
+                  <div className="message-label">Response from the AI</div>
+                  <div className="message-content typing">
+                    <span className="typing-dot"></span>
+                    <span className="typing-dot"></span>
+                    <span className="typing-dot"></span>
+                  </div>
                 </div>
               </div>
             )}
@@ -216,7 +211,7 @@ const Chat = () => {
               {isLoading ? '⏳' : '📤'}
             </button>
           </form>
-        </main>
+        </div>
       </div>
     </div>
   );
