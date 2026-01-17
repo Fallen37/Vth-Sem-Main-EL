@@ -323,10 +323,17 @@ class ChatOrchestrator:
         complexity_factor = self._calculate_complexity_factor(state)
 
         # Query RAG engine
-        rag_response = self.rag_engine.query(
-            question=input.content,
-            context=query_context,
-        )
+        # Use async query if available (for SimpleRAG), otherwise use sync query
+        if hasattr(self.rag_engine, 'query_async'):
+            rag_response = await self.rag_engine.query_async(
+                question=input.content,
+                context=query_context,
+            )
+        else:
+            rag_response = self.rag_engine.query(
+                question=input.content,
+                context=query_context,
+            )
 
         # Determine if this is an explanation (for comprehension buttons)
         is_explanation = self._is_explanation_response(input.content, rag_response)
@@ -655,10 +662,16 @@ class ChatOrchestrator:
             )
 
             topic = state.last_topic_name or "this concept"
-            rag_response = self.rag_engine.query(
-                question=f"Explain the basics of {topic} in very simple terms for a beginner",
-                context=query_context,
-            )
+            if hasattr(self.rag_engine, 'query_async'):
+                rag_response = await self.rag_engine.query_async(
+                    question=f"Explain the basics of {topic} in very simple terms for a beginner",
+                    context=query_context,
+                )
+            else:
+                rag_response = self.rag_engine.query(
+                    question=f"Explain the basics of {topic} in very simple terms for a beginner",
+                    context=query_context,
+                )
 
             return ChatResponse(
                 message=rag_response.answer,
@@ -679,10 +692,16 @@ class ChatOrchestrator:
         )
 
         # Use the part content to generate a more detailed explanation
-        rag_response = self.rag_engine.query(
-            question=f"Explain in more detail: {selected_part.full_content}",
-            context=query_context,
-        )
+        if hasattr(self.rag_engine, 'query_async'):
+            rag_response = await self.rag_engine.query_async(
+                question=f"Explain in more detail: {selected_part.full_content}",
+                context=query_context,
+            )
+        else:
+            rag_response = self.rag_engine.query(
+                question=f"Explain in more detail: {selected_part.full_content}",
+                context=query_context,
+            )
 
         return ChatResponse(
             message=f"Let me explain '{selected_part.title}' in more detail:\n\n{rag_response.answer}",

@@ -120,10 +120,18 @@ class SimpleRAG:
         context: Optional[QueryContext] = None,
     ) -> RAGResponse:
         """
-        Process a question through the simple RAG pipeline.
-        
-        This is a synchronous method that works without async/await.
-        For database queries, we use a workaround with asyncio.
+        Synchronous wrapper for query - not recommended.
+        Use query_async() instead when in an async context.
+        """
+        return self._get_generic_response(question, context)
+    
+    async def query_async(
+        self,
+        question: str,
+        context: Optional[QueryContext] = None,
+    ) -> RAGResponse:
+        """
+        Process a question through the simple RAG pipeline (async version).
         
         Args:
             question: The student's question
@@ -132,23 +140,87 @@ class SimpleRAG:
         Returns:
             RAGResponse with answer, sources, confidence, and follow-ups
         """
-        import asyncio
-        
-        # Try to get the current event loop
-        try:
-            loop = asyncio.get_running_loop()
-            # If we're already in an async context, we can't use run_until_complete
-            # So we'll return a generic response
+        if not self.db_session:
             return self._get_generic_response(question, context)
-        except RuntimeError:
-            # No running loop, we can create one
-            try:
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-                return loop.run_until_complete(self._query_async(question, context))
-            except Exception as e:
-                # If anything fails, return a generic response
+        
+        try:
+            grade = context.grade if context else None
+            syllabus = context.syllabus if context else None
+            
+            # Build query
+            stmt = select(DocumentORM)
+            
+            if grade:
+                stmt = stmt.where(DocumentORM.grade == grade)
+            
+            if syllabus:
+                stmt = stmt.where(DocumentORM.syllabus == syllabus)
+            
+            # Execute async query
+            result = await self.db_session.execute(stmt)
+            documents = result.scalars().all()
+            
+            # Simple keyword matching - check if any word from the query matches the metadata
+            query_words = question.lower().split()
+            scored_docs = []
+            
+            for doc in documents:
+                score = 0
+                
+                # Check if any query word matches document metadata
+                for word in query_words:
+                    if len(word) > 2:  # Only match words longer than 2 chars
+                        if doc.topic and word in doc.topic.lower():
+                            score += 3
+                        if doc.chapter and word in doc.chapter.lower():
+                            score += 2
+                        if doc.subject and word in doc.subject.lower():
+                            score += 1
+                
+                if score > 0:
+                    scored_docs.append({
+                        "topic": doc.topic,
+                        "chapter": doc.chapter,
+                        "subject": doc.subject,
+                        "grade": doc.grade,
+                        "score": score,
+                    })
+            
+            # Sort by score
+            scored_docs.sort(key=lambda x: x["score"], reverse=True)
+            
+            if not scored_docs:
                 return self._get_generic_response(question, context)
+            
+            # Build answer from matched documents
+            answer = "Based on your curriculum materials, here's what I found:\n\n"
+            
+            for i, doc in enumerate(scored_docs[:3], 1):
+                topic = doc.get("topic") or doc.get("chapter") or "Unknown"
+                answer += f"{i}. **{topic}** (Grade {doc['grade']} {doc['subject']})\n"
+            
+            answer += "\n\nWould you like me to explain any of these topics in more detail?"
+            
+            return RAGResponse(
+                answer=answer,
+                sources=[],  # Don't show sources - they're not useful for students
+                confidence=0.8,
+                suggested_follow_ups=[
+                    "Tell me more about this",
+                    "Can you give me an example?",
+                    "Explain it simply",
+                ],
+                has_uncertainty=False,
+                uncertainty_message=None,
+                curriculum_mapping={
+                    "grade": grade,
+                    "syllabus": syllabus,
+                    "primary_topic": scored_docs[0].get("topic") if scored_docs else None,
+                },
+            )
+        except Exception as e:
+            # If anything fails, return a generic response
+            return self._get_generic_response(question, context)
     
     def _get_generic_response(
         self,
@@ -166,47 +238,24 @@ class SimpleRAG:
             "1. **Science Concepts** - Explore fundamental science principles\n"
             "2. **Chapter Topics** - Review specific chapters from your textbook\n"
             "3. **Key Concepts** - Learn important concepts step by step\n\n"
-            "For detailed information, please refer to your textbooks. "
-            "I'm here to help guide your learning!"
+            "Would you like me to explain any of these topics in more detail?"
         )
-        
-        # Create a generic source
-        sources = [
-            Source(
-                document_id="curriculum",
-                chunk_index=0,
-                content_preview="Curriculum materials from your textbook",
-                similarity=0.7,
-                grade=grade,
-                syllabus=syllabus,
-                subject="Science",
-                chapter="Various",
-                topic="General",
-            )
-        ]
-        
-        # Build curriculum mapping
-        curriculum_mapping = {
-            "grade": grade,
-            "syllabus": syllabus,
-            "subject": "Science",
-            "chapter": "Various",
-            "topic": "General",
-            "primary_topic": "General",
-        }
         
         return RAGResponse(
             answer=answer,
-            sources=sources,
+            sources=[],  # Don't show sources
             confidence=0.6,
             suggested_follow_ups=[
-                "Tell me more about this topic",
+                "Tell me more about this",
                 "Can you give me an example?",
-                "What's the most important part?",
+                "Explain it simply",
             ],
             has_uncertainty=False,
             uncertainty_message=None,
-            curriculum_mapping=curriculum_mapping,
+            curriculum_mapping={
+                "grade": grade,
+                "syllabus": syllabus,
+            },
         )
     
     async def _query_async(
