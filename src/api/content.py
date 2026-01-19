@@ -62,6 +62,21 @@ class CurriculumSummaryResponse(BaseModel):
     by_chapter: dict[str, int]
 
 
+class ChapterResponse(BaseModel):
+    """Response model for a chapter."""
+    
+    chapter: str
+    subject: str
+    topic_count: int
+
+
+class ChaptersResponse(BaseModel):
+    """Response model for chapters by grade."""
+    
+    grade: int
+    chapters: list[ChapterResponse]
+
+
 class QueryRequest(BaseModel):
     """Request model for content query."""
     
@@ -344,4 +359,100 @@ async def get_curriculum_summary(
         by_syllabus=summary["by_syllabus"],
         by_subject=summary["by_subject"],
         by_chapter=summary["by_chapter"],
+    )
+
+
+@router.get("/chapters/{grade}/{chapter}", response_model=dict)
+async def get_chapter_content(
+    grade: int,
+    chapter: str,
+    user: UserORM = Depends(require_current_user),
+    db: AsyncSession = Depends(get_db_session),
+) -> dict:
+    """Get content for a specific chapter."""
+    from sqlalchemy import select
+    from src.models.document import DocumentORM
+    
+    # Decode the chapter name
+    import urllib.parse
+    chapter_decoded = urllib.parse.unquote(chapter)
+    
+    print(f"DEBUG: Fetching content for grade {grade}, chapter {chapter_decoded}")
+    
+    # Query documents for this chapter
+    stmt = select(DocumentORM).where(
+        DocumentORM.grade == grade,
+        DocumentORM.chapter == chapter_decoded
+    )
+    
+    result = await db.execute(stmt)
+    documents = result.scalars().all()
+    
+    if not documents:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No content found for chapter: {chapter_decoded}",
+        )
+    
+    # Combine content from all documents for this chapter
+    sections = []
+    for doc in documents:
+        if doc.content:
+            sections.append({
+                "id": str(doc.id),
+                "title": doc.topic or doc.chapter or "Section",
+                "content": doc.content,
+                "subject": doc.subject,
+            })
+    
+    return {
+        "grade": grade,
+        "chapter": chapter_decoded,
+        "sections": sections,
+        "total_sections": len(sections),
+    }
+
+
+@router.get("/chapters/{grade}", response_model=ChaptersResponse)
+async def get_chapters_by_grade(
+    grade: int,
+    user: UserORM = Depends(require_current_user),
+    db: AsyncSession = Depends(get_db_session),
+) -> ChaptersResponse:
+    """Get all chapters available for a specific grade."""
+    from sqlalchemy import select, func
+    from src.models.document import DocumentORM
+    
+    print(f"DEBUG: Fetching chapters for grade {grade}")
+    
+    # Query chapters for the grade
+    stmt = select(
+        DocumentORM.chapter,
+        DocumentORM.subject,
+        func.count(DocumentORM.id).label("topic_count")
+    ).where(
+        DocumentORM.grade == grade,
+        DocumentORM.chapter.isnot(None)
+    ).group_by(
+        DocumentORM.chapter,
+        DocumentORM.subject
+    ).order_by(DocumentORM.chapter)
+    
+    result = await db.execute(stmt)
+    rows = result.fetchall()
+    
+    print(f"DEBUG: Found {len(rows)} chapters for grade {grade}")
+    
+    chapters = [
+        ChapterResponse(
+            chapter=row[0],
+            subject=row[1],
+            topic_count=row[2]
+        )
+        for row in rows
+    ]
+    
+    return ChaptersResponse(
+        grade=grade,
+        chapters=chapters,
     )

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { progressApi, contentApi } from '../api/client';
+import { UserRole } from '../types';
 import './Dashboard.css';
 
 interface ProgressSummary {
@@ -227,7 +228,7 @@ const Dashboard = () => {
             <p>Customize your experience</p>
           </div>
 
-          {user?.role === 'GUARDIAN' && (
+          {user?.role === UserRole.GUARDIAN && (
             <div className="action-card" onClick={() => navigate('/guardian')}>
               <span className="action-icon">👨‍👩‍👧</span>
               <h3>Guardian View</h3>

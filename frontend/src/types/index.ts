@@ -1,21 +1,21 @@
 // User types - using const objects instead of enums for erasableSyntaxOnly
 export const UserRole = {
-  STUDENT: 'STUDENT',
-  GUARDIAN: 'GUARDIAN',
-  ADMIN: 'ADMIN',
+  STUDENT: 'student',
+  GUARDIAN: 'guardian',
+  ADMIN: 'admin',
 } as const;
 export type UserRole = typeof UserRole[keyof typeof UserRole];
 
 export const Syllabus = {
-  CBSE: 'CBSE',
-  STATE: 'STATE',
+  CBSE: 'cbse',
+  STATE: 'state',
 } as const;
 export type Syllabus = typeof Syllabus[keyof typeof Syllabus];
 
 export const InteractionSpeed = {
-  SLOW: 'SLOW',
-  MEDIUM: 'MEDIUM',
-  FAST: 'FAST',
+  SLOW: 'slow',
+  MEDIUM: 'medium',
+  FAST: 'fast',
 } as const;
 export type InteractionSpeed = typeof InteractionSpeed[keyof typeof InteractionSpeed];
 

@@ -12,13 +12,6 @@ interface Message {
   timestamp: Date;
 }
 
-interface TextbookSection {
-  id: string;
-  title: string;
-  content: string;
-  isHighlighted: boolean;
-}
-
 type AvatarState = 'idle' | 'listening' | 'thinking' | 'explaining';
 
 const Chat = () => {
@@ -29,17 +22,14 @@ const Chat = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [tutorState, setTutorState] = useState<AvatarState>('idle');
-  const [currentTextbook, setCurrentTextbook] = useState<TextbookSection[]>([]);
-  const [highlightedSections, setHighlightedSections] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textbookRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Add welcome message
     setMessages([{
       id: 'welcome',
       role: 'assistant',
-      content: `Hi ${user?.name}! 👋 I'm Science Buddy, your AI tutor. Ask me anything about science - physics, chemistry, biology, or any topic you're curious about!`,
+      content: `Hi ${user?.name}! 👋 I'm your Science Tutor. Ask me anything about science - physics, chemistry, biology, or any topic you're curious about!`,
       timestamp: new Date(),
     }]);
   }, [user?.name]);
@@ -77,10 +67,6 @@ const Chat = () => {
 
       setTutorState('explaining');
 
-      // Extract relevant sections from response
-      const relevantSections = response.sources?.map((s: any) => s.document_id) || [];
-      setHighlightedSections(relevantSections);
-
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -90,7 +76,6 @@ const Chat = () => {
 
       setMessages(prev => [...prev, assistantMessage]);
       
-      // Return to idle after a delay
       setTimeout(() => setTutorState('idle'), 2000);
     } catch (err) {
       console.error('Failed to send message:', err);
@@ -133,85 +118,57 @@ const Chat = () => {
           ← Back
         </button>
         <div className="chat-title">
-          <h1>📚 Learn with Textbooks</h1>
+          <h1>💬 Chat with Tutor</h1>
         </div>
         <button className="calm-mode-btn" onClick={() => navigate('/calm')}>
           🧘
         </button>
       </header>
 
-      <div className="chat-content split-layout">
-        {/* Textbook Viewer - Left Side */}
-        <div className="textbook-viewer">
-          <div className="textbook-header">
-            <h2>TEXTBOOK MATERIAL</h2>
-          </div>
-          <div className="textbook-content" ref={textbookRef}>
-            {currentTextbook.length > 0 ? (
-              currentTextbook.map(section => (
-                <div 
-                  key={section.id}
-                  className={`textbook-section ${highlightedSections.includes(section.id) ? 'highlighted' : ''}`}
-                >
-                  <h3>{section.title}</h3>
-                  <p>{section.content}</p>
+      <div className="chat-content">
+        <div className="messages-list">
+          {messages.map(message => (
+            <div key={message.id} className={`message ${message.role}`}>
+              <div className="message-bubble">
+                <div className="message-label">
+                  {message.role === 'assistant' ? 'Tutor' : 'You'}
                 </div>
-              ))
-            ) : (
-              <div className="textbook-placeholder">
-                <p>Select a topic to view textbook material</p>
+                <div className="message-content">
+                  <p>{message.content}</p>
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="message assistant">
+              <div className="message-bubble">
+                <div className="message-label">Tutor</div>
+                <div className="message-content typing">
+                  <span className="typing-dot"></span>
+                  <span className="typing-dot"></span>
+                  <span className="typing-dot"></span>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
-        {/* Chat Interface - Right Side */}
-        <div className="chat-interface">
-          <div className="messages-list">
-            {messages.map(message => (
-              <div key={message.id} className={`message ${message.role}`}>
-                <div className="message-bubble">
-                  <div className="message-label">
-                    {message.role === 'assistant' ? 'Response from the AI' : 'Doubt from the user'}
-                  </div>
-                  <div className="message-content">
-                    <p>{message.content}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="message assistant">
-                <div className="message-bubble">
-                  <div className="message-label">Response from the AI</div>
-                  <div className="message-content typing">
-                    <span className="typing-dot"></span>
-                    <span className="typing-dot"></span>
-                    <span className="typing-dot"></span>
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Input Area */}
-          <form className="input-area" onSubmit={handleSubmit}>
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={handleInputFocus}
-              onBlur={handleInputBlur}
-              placeholder="Ask me anything about science..."
-              rows={1}
-              disabled={isLoading}
-            />
-            <button type="submit" disabled={!input.trim() || isLoading}>
-              {isLoading ? '⏳' : '📤'}
-            </button>
-          </form>
-        </div>
+        <form className="input-area" onSubmit={handleSubmit}>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
+            placeholder="Ask me anything about science..."
+            rows={1}
+            disabled={isLoading}
+          />
+          <button type="submit" disabled={!input.trim() || isLoading}>
+            {isLoading ? '⏳' : '📤'}
+          </button>
+        </form>
       </div>
     </div>
   );

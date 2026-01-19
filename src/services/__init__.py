@@ -1,103 +1,93 @@
 # Services package
 """Services for the Autism Science Tutor application."""
 
-from src.services.content_ingestion import (
-    ContentIngestionService,
-    ProcessingResult,
-    TextExtractor,
-    TextChunker,
-)
-from src.services.rag_engine import (
-    RAGEngine,
-    RAGResponse,
-    QueryContext,
-    Chunk,
-    Source,
-)
-from src.services.profile_service import (
-    ProfileService,
-    Interaction,
-)
-from src.services.chat_orchestrator import (
-    ChatOrchestrator,
-    ChatResponse,
-    UserInput,
-    ComprehensionOption,
-    OutputModeOption,
-    ExplanationPart,
-    VisualAid,
-    SessionState,
-)
-from src.services.multimodal_input import (
-    MultimodalInputHandler,
-    ProcessedInput,
-    Intent,
-    Entity,
-    STTService,
-    VisionService,
-    MockSTTService,
-    MockVisionService,
-)
-from src.services.multimodal_output import (
-    MultimodalOutputRenderer,
-    RenderedText,
-    TextStyle,
-    VoiceConfig,
-    VisualType,
-    VisualData,
-    VisualAid as OutputVisualAid,
-    ButtonGroup,
-    TTSService,
-    ImageService,
-    MockTTSService,
-    MockImageService,
-)
-from src.services.progress_tracker import (
-    ProgressTracker,
-    AchievementType,
-    ACHIEVEMENT_DEFINITIONS,
-    REVIEW_THRESHOLD,
-    MASTERY_THRESHOLD,
-)
-from src.services.guardian_service import (
-    GuardianService,
-    IndependenceMetrics,
-    WeeklyMetric,
-    AlertType,
-    GuardianAlert,
-)
-from src.services.calm_mode import (
-    CalmModeService,
-    BreakSession,
-    BreathingSession,
-    BreathingPattern,
-    BreathingPhase,
-    AudioStream,
-    CalmingContent,
-    DEFAULT_CALMING_CONTENT,
-    CALMING_MUSIC_TRACKS,
-)
-from src.services.avatar_service import (
-    AvatarStateService,
-    AvatarState,
-    AvatarType,
-    AvatarConfig,
-    AvatarStateChange,
-    AvatarStatus,
-    DEFAULT_TUTOR_AVATAR,
-    DEFAULT_STUDENT_AVATAR,
-)
-from src.services.interface_preferences import (
-    InterfacePreferencesService,
-    InterfaceCustomization,
-    InterfacePreferencesUpdate,
-    InterfaceState,
-    SpacingSettings,
-)
+# Lazy imports to speed up startup
+# Only import lightweight services at module level
+# Heavy services (RAGEngine, ContentIngestionService) are imported on demand
 
-# These require heavy dependencies and are imported lazily
-# EmbeddingService and ChromaDBClient are available via:
-# from src.services.content_ingestion import EmbeddingService, ChromaDBClient
+def __getattr__(name):
+    """Lazy load services on demand."""
+    lazy_imports = {
+        "ContentIngestionService": "src.services.content_ingestion",
+        "ProcessingResult": "src.services.content_ingestion",
+        "TextExtractor": "src.services.content_ingestion",
+        "TextChunker": "src.services.content_ingestion",
+        "RAGEngine": "src.services.rag_engine",
+        "RAGResponse": "src.services.rag_engine",
+        "QueryContext": "src.services.rag_engine",
+        "Chunk": "src.services.rag_engine",
+        "Source": "src.services.rag_engine",
+        "ProfileService": "src.services.profile_service",
+        "Interaction": "src.services.profile_service",
+        "ChatOrchestrator": "src.services.chat_orchestrator",
+        "ChatResponse": "src.services.chat_orchestrator",
+        "UserInput": "src.services.chat_orchestrator",
+        "ComprehensionOption": "src.services.chat_orchestrator",
+        "OutputModeOption": "src.services.chat_orchestrator",
+        "ExplanationPart": "src.services.chat_orchestrator",
+        "VisualAid": "src.services.chat_orchestrator",
+        "SessionState": "src.services.chat_orchestrator",
+        "MultimodalInputHandler": "src.services.multimodal_input",
+        "ProcessedInput": "src.services.multimodal_input",
+        "Intent": "src.services.multimodal_input",
+        "Entity": "src.services.multimodal_input",
+        "STTService": "src.services.multimodal_input",
+        "VisionService": "src.services.multimodal_input",
+        "MockSTTService": "src.services.multimodal_input",
+        "MockVisionService": "src.services.multimodal_input",
+        "MultimodalOutputRenderer": "src.services.multimodal_output",
+        "RenderedText": "src.services.multimodal_output",
+        "TextStyle": "src.services.multimodal_output",
+        "VoiceConfig": "src.services.multimodal_output",
+        "VisualType": "src.services.multimodal_output",
+        "VisualData": "src.services.multimodal_output",
+        "OutputVisualAid": "src.services.multimodal_output",
+        "ButtonGroup": "src.services.multimodal_output",
+        "TTSService": "src.services.multimodal_output",
+        "ImageService": "src.services.multimodal_output",
+        "MockTTSService": "src.services.multimodal_output",
+        "MockImageService": "src.services.multimodal_output",
+        "ProgressTracker": "src.services.progress_tracker",
+        "AchievementType": "src.services.progress_tracker",
+        "ACHIEVEMENT_DEFINITIONS": "src.services.progress_tracker",
+        "REVIEW_THRESHOLD": "src.services.progress_tracker",
+        "MASTERY_THRESHOLD": "src.services.progress_tracker",
+        "GuardianService": "src.services.guardian_service",
+        "IndependenceMetrics": "src.services.guardian_service",
+        "WeeklyMetric": "src.services.guardian_service",
+        "AlertType": "src.services.guardian_service",
+        "GuardianAlert": "src.services.guardian_service",
+        "CalmModeService": "src.services.calm_mode",
+        "BreakSession": "src.services.calm_mode",
+        "BreathingSession": "src.services.calm_mode",
+        "BreathingPattern": "src.services.calm_mode",
+        "BreathingPhase": "src.services.calm_mode",
+        "AudioStream": "src.services.calm_mode",
+        "CalmingContent": "src.services.calm_mode",
+        "DEFAULT_CALMING_CONTENT": "src.services.calm_mode",
+        "CALMING_MUSIC_TRACKS": "src.services.calm_mode",
+        "AvatarStateService": "src.services.avatar_service",
+        "AvatarState": "src.services.avatar_service",
+        "AvatarType": "src.services.avatar_service",
+        "AvatarConfig": "src.services.avatar_service",
+        "AvatarStateChange": "src.services.avatar_service",
+        "AvatarStatus": "src.services.avatar_service",
+        "DEFAULT_TUTOR_AVATAR": "src.services.avatar_service",
+        "DEFAULT_STUDENT_AVATAR": "src.services.avatar_service",
+        "InterfacePreferencesService": "src.services.interface_preferences",
+        "InterfaceCustomization": "src.services.interface_preferences",
+        "InterfacePreferencesUpdate": "src.services.interface_preferences",
+        "InterfaceState": "src.services.interface_preferences",
+        "SpacingSettings": "src.services.interface_preferences",
+    }
+    
+    if name in lazy_imports:
+        module_name = lazy_imports[name]
+        module = __import__(module_name, fromlist=[name])
+        return getattr(module, name)
+    
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     "ContentIngestionService",

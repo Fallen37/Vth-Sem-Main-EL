@@ -11,7 +11,6 @@ from pydantic import BaseModel, Field
 from config.settings import get_settings
 from src.models.document import ContentFilters, CurriculumInfo
 from src.models.enums import Syllabus
-from src.services.content_ingestion import ChromaDBClient, EmbeddingService
 
 
 settings = get_settings()
@@ -87,16 +86,18 @@ class RAGEngine:
         pass
 
     @property
-    def _embedding_service(self) -> EmbeddingService:
+    def _embedding_service(self):
         """Lazy initialization of embedding service."""
         if self.embedding_service is None:
+            from src.services.content_ingestion import EmbeddingService
             self.embedding_service = EmbeddingService()
         return self.embedding_service
 
     @property
-    def _chroma_client(self) -> ChromaDBClient:
+    def _chroma_client(self):
         """Lazy initialization of ChromaDB client."""
         if self.chroma_client is None:
+            from src.services.content_ingestion import ChromaDBClient
             self.chroma_client = ChromaDBClient()
         return self.chroma_client
 

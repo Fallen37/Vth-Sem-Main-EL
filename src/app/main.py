@@ -11,16 +11,6 @@ from fastapi.responses import FileResponse, HTMLResponse
 
 from config.settings import get_settings
 from src.models.database import init_db
-from src.api import (
-    auth_router,
-    chat_router,
-    profile_router,
-    content_router,
-    progress_router,
-    guardian_router,
-    calm_router,
-    websocket_router,
-)
 
 settings = get_settings()
 
@@ -53,15 +43,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routers
-app.include_router(auth_router)
-app.include_router(chat_router)
-app.include_router(profile_router)
-app.include_router(content_router)
-app.include_router(progress_router)
-app.include_router(guardian_router)
-app.include_router(calm_router)
-app.include_router(websocket_router)
+# Lazy import routers to speed up startup
+def _load_routers():
+    """Lazy load routers to defer heavy imports."""
+    from src.api import (
+        auth_router,
+        chat_router,
+        profile_router,
+        content_router,
+        progress_router,
+        guardian_router,
+        calm_router,
+        websocket_router,
+    )
+    
+    app.include_router(auth_router)
+    app.include_router(chat_router)
+    app.include_router(profile_router)
+    app.include_router(content_router)
+    app.include_router(progress_router)
+    app.include_router(guardian_router)
+    app.include_router(calm_router)
+    app.include_router(websocket_router)
+
+# Load routers after app creation
+_load_routers()
 
 
 @app.get("/health")

@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // Use relative URL so it works both in development and production
-// In development with Vite proxy, or in production served from same origin
-const API_BASE_URL = import.meta.env.DEV ? 'http://127.0.0.1:8001' : '';
+// Always use relative paths so it works with the backend serving the frontend
+const API_BASE_URL = '';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -138,6 +138,16 @@ export const contentApi = {
 
   getSummary: async () => {
     const response = await api.get('/content/summary');
+    return response.data;
+  },
+
+  getChaptersByGrade: async (grade: number) => {
+    const response = await api.get(`/content/chapters/${grade}`);
+    return response.data;
+  },
+
+  getChapterContent: async (grade: number, chapter: string) => {
+    const response = await api.get(`/content/chapters/${grade}/${encodeURIComponent(chapter)}`);
     return response.data;
   },
 

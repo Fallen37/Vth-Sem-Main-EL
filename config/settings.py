@@ -28,12 +28,11 @@ class Settings(BaseSettings):
     chroma_persist_directory: str = "./data/chroma"
     chroma_collection_name: str = "curriculum_content"
 
-    # OpenAI
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4-turbo-preview"
-    openai_embedding_model: str = "text-embedding-3-small"
+    # Google Gemini API
+    google_api_key: str = ""
+    gemini_model: str = "gemini-2.5-flash"
 
-    # Sentence Transformers (local embeddings fallback)
+    # Sentence Transformers (local embeddings)
     embedding_model_name: str = "all-MiniLM-L6-v2"
     use_local_embeddings: bool = True
 

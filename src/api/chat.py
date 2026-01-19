@@ -101,33 +101,24 @@ async def send_message(
         db.add(session)
         await db.commit()
     
-    # Create chat orchestrator
-    orchestrator = ChatOrchestrator(db=db)
+    # Use new RAG service instead of orchestrator
+    from src.services.rag_service import RAGService
     
-    # Convert string values to enums
-    try:
-        input_type = InputType(request.input_type or "text")
-    except (ValueError, KeyError):
-        input_type = InputType.TEXT
+    rag_service = RAGService(db_session=db)
     
-    try:
-        source = MessageRole(request.source or "student")
-    except (ValueError, KeyError):
-        source = MessageRole.STUDENT
-    
-    # Process message
-    user_input = UserInput(
-        type=input_type,
-        content=request.content,
-        source=source,
+    # Chat with RAG
+    result = await rag_service.chat(
+        query=request.content,
+        grade=user.grade,
     )
     
-    response = await orchestrator.process_message(
-        input=user_input,
-        session_id=session_id,
-        user_id=user_id,
-        grade=user.grade,
-        syllabus=user.syllabus,
+    # Build response
+    response = ChatResponse(
+        message=result['response'],
+        sources=[],
+        confidence=result.get('confidence', 0.7),
+        suggested_responses=result.get('suggestions', []),
+        is_explanation=True,
     )
     
     return response

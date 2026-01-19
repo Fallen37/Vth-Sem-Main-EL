@@ -31,6 +31,7 @@ class DocumentORM(Base):
     subject: Mapped[str] = mapped_column(String(100), nullable=False)
     chapter: Mapped[str] = mapped_column(String(255), nullable=False)
     topic: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    content: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # Actual document content
     tags: Mapped[Optional[str]] = mapped_column(Text, nullable=True)  # JSON-encoded list of tags
     chunk_count: Mapped[int] = mapped_column(Integer, default=0)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
