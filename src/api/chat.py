@@ -181,10 +181,14 @@ async def send_message(
     # Store response for later retrieval and feedback
     storage_start = time.time()
     storage_service = ResponseManagementService(db_session=db)
+
+    # Use analyzed topic if available; fall back to a generic label
+    storage_topic = analysis.get("topic") or "general"
+
     stored_response = await storage_service.store_response(
         user_id=user_id,
         session_id=session_id,
-        topic=None,
+        topic=storage_topic,
         explanation=result['response'],
         meta_text=analysis.get('meta_text'),
         content_text=analysis.get('content_text'),
