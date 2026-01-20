@@ -1,0 +1,172 @@
+.notebook-canvas {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 16px;
+  padding: 24px;
+  gap: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 2px solid #e5e7eb;
+}
+
+/* Header */
+.notebook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.notebook-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.entry-count {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Content Area */
+.notebook-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.blocks-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #9ca3af;
+  gap: 16px;
+}
+
+.empty-icon {
+  font-size: 48px;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 14px;
+  max-width: 300px;
+}
+
+/* Footer */
+.notebook-footer {
+  display: flex;
+  gap: 24px;
+  padding-top: 16px;
+  border-top: 2px solid #e5e7eb;
+}
+
+.footer-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1f2937;
+}
+
+/* Scrollbar Styling */
+.notebook-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.notebook-content::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 10px;
+}
+
+.notebook-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+.notebook-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .notebook-canvas {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .notebook-title {
+    font-size: 18px;
+  }
+
+  .entry-count {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .notebook-canvas {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .notebook-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 12px;
+  }
+
+  .notebook-title {
+    font-size: 16px;
+  }
+
+  .entry-count {
+    align-self: flex-start;
+  }
+
+  .notebook-footer {
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 12px;
+  }
+
+  .empty-icon {
+    font-size: 36px;
+  }
+
+  .empty-state p {
+    font-size: 13px;
+  }
+}

@@ -1,0 +1,168 @@
+.response-buttons-container {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.buttons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+
+.response-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-height: 100px;
+}
+
+.response-button:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.response-button:active:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.response-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.button-emoji {
+  font-size: 2rem;
+  display: block;
+}
+
+.button-label {
+  font-size: 0.8rem;
+  text-align: center;
+  line-height: 1.2;
+}
+
+/* Button color variants */
+.button-simplify {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #333;
+  border-color: #fed6e3;
+}
+
+.button-simplify:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fed6e3 0%, #a8edea 100%);
+}
+
+.button-detail {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.button-detail:hover:not(:disabled) {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.button-summarize {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border-color: #f5576c;
+}
+
+.button-summarize:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+}
+
+.button-continue {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+  border-color: #00f2fe;
+}
+
+.button-continue:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+}
+
+.button-confused {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #333;
+  border-color: #fcb69f;
+}
+
+.button-confused:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fcb69f 0%, #ffecd2 100%);
+}
+
+.button-understood {
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e59c 100%);
+  color: #333;
+  border-color: #c2e59c;
+}
+
+.button-understood:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c2e59c 0%, #a1c4fd 100%);
+}
+
+.button-break {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+  color: #333;
+  border-color: #fcb69f;
+}
+
+.button-break:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fcb69f 0%, #ffecd2 100%);
+}
+
+.button-stop {
+  background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%);
+  color: white;
+  border-color: #ff6a88;
+}
+
+.button-stop:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff6a88 0%, #ff9a56 100%);
+}
+
+.button-default {
+  background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+  color: #333;
+  border-color: #bdbdbd;
+}
+
+.button-default:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .buttons-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .response-button {
+    padding: 0.75rem;
+    min-height: 80px;
+  }
+
+  .button-emoji {
+    font-size: 1.5rem;
+  }
+
+  .button-label {
+    font-size: 0.7rem;
+  }
+}

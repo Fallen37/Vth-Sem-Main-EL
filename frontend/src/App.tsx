@@ -1,10 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { LearningProvider } from './context/LearningContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProfileSetup from './pages/ProfileSetup';
 import Dashboard from './pages/Dashboard';
-import Chat from './pages/Chat';
+import ChapterIndex from './pages/ChapterIndex';
+import InteractiveLearnPage from './pages/InteractiveLearnPage';
+import Profile from './pages/Profile';
+import Layout3Column from './components/Layout3Column';
 import './App.css';
 
 // Protected route wrapper
@@ -55,7 +59,10 @@ function AppRoutes() {
       <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
       <Route path="/profile-setup" element={<ProtectedRoute><ProfileSetup /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/chapters" element={<ProtectedRoute><ChapterIndex /></ProtectedRoute>} />
+      <Route path="/chat" element={<ProtectedRoute><LearningProvider><Layout3Column /></LearningProvider></ProtectedRoute>} />
+      <Route path="/learn" element={<ProtectedRoute><LearningProvider><InteractiveLearnPage /></LearningProvider></ProtectedRoute>} />
       <Route path="/progress" element={<ProtectedRoute><PlaceholderPage title="📊 Progress" desc="Your learning progress will be displayed here." /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><PlaceholderPage title="⚙️ Settings" desc="Customize your experience here." /></ProtectedRoute>} />
       <Route path="/calm" element={<ProtectedRoute><CalmPage /></ProtectedRoute>} />

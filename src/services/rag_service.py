@@ -119,10 +119,10 @@ class RAGService:
         Returns:
             Dict with response, sources, and metadata
         """
-        # Build context from retrieved chunks
+        # Build context from retrieved chunks - use more chunks for comprehensive explanation
         context = "\n\n".join([
             f"From {chunk['metadata'].get('chapter', 'Unknown')}:\n{chunk['chunk']}"
-            for chunk in retrieved_chunks[:3]  # Use top 3 chunks
+            for chunk in retrieved_chunks[:8]  # Use top 8 chunks for more comprehensive context
         ])
         
         if not context:
@@ -159,10 +159,10 @@ class RAGService:
                     'subject': chunk['metadata'].get('subject'),
                     'similarity': chunk['similarity'],
                 }
-                for chunk in retrieved_chunks[:3]
+                for chunk in retrieved_chunks[:8]
             ],
             'suggestions': suggestions,
-            'confidence': sum(c['similarity'] for c in retrieved_chunks[:3]) / 3 if retrieved_chunks else 0,
+            'confidence': sum(c['similarity'] for c in retrieved_chunks[:8]) / len(retrieved_chunks[:8]) if retrieved_chunks else 0,
         }
     
     async def chat(
@@ -182,8 +182,8 @@ class RAGService:
         Returns:
             Dict with response and metadata
         """
-        # Retrieve relevant chunks
-        retrieved_chunks = await self.retrieve_context(query, grade=grade, top_k=5)
+        # Retrieve more relevant chunks for comprehensive explanation
+        retrieved_chunks = await self.retrieve_context(query, grade=grade, top_k=10)
         
         # Generate response
         result = await self.generate_response(

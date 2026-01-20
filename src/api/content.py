@@ -68,6 +68,7 @@ class ChapterResponse(BaseModel):
     chapter: str
     subject: str
     topic_count: int
+    topics: list[str] = Field(default_factory=list)
 
 
 class ChaptersResponse(BaseModel):
@@ -369,47 +370,34 @@ async def get_chapter_content(
     user: UserORM = Depends(require_current_user),
     db: AsyncSession = Depends(get_db_session),
 ) -> dict:
-    """Get content for a specific chapter."""
-    from sqlalchemy import select
+    """Get topics for a specific chapter."""
+    from sqlalchemy import select, func
     from src.models.document import DocumentORM
     
     # Decode the chapter name
     import urllib.parse
     chapter_decoded = urllib.parse.unquote(chapter)
     
-    print(f"DEBUG: Fetching content for grade {grade}, chapter {chapter_decoded}")
+    print(f"DEBUG: Fetching topics for grade {grade}, chapter {chapter_decoded}")
     
-    # Query documents for this chapter
-    stmt = select(DocumentORM).where(
+    # Query documents for this chapter to get topics
+    stmt = select(DocumentORM.topic).where(
         DocumentORM.grade == grade,
-        DocumentORM.chapter == chapter_decoded
-    )
+        DocumentORM.chapter == chapter_decoded,
+        DocumentORM.topic.isnot(None)
+    ).distinct()
     
     result = await db.execute(stmt)
-    documents = result.scalars().all()
+    topics = [row[0] for row in result.fetchall() if row[0]]
     
-    if not documents:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"No content found for chapter: {chapter_decoded}",
-        )
-    
-    # Combine content from all documents for this chapter
-    sections = []
-    for doc in documents:
-        if doc.content:
-            sections.append({
-                "id": str(doc.id),
-                "title": doc.topic or doc.chapter or "Section",
-                "content": doc.content,
-                "subject": doc.subject,
-            })
+    # If no topics found, return empty list
+    if not topics:
+        topics = []
     
     return {
         "grade": grade,
         "chapter": chapter_decoded,
-        "sections": sections,
-        "total_sections": len(sections),
+        "topics": topics,
     }
 
 
@@ -423,13 +411,15 @@ async def get_chapters_by_grade(
     from sqlalchemy import select, func
     from src.models.document import DocumentORM
     
-    print(f"DEBUG: Fetching chapters for grade {grade}")
+    print(f"\n🔍 [API] GET /chapters/{grade}")
+    print(f"   User: {user.id}, Grade: {grade}")
     
-    # Query chapters for the grade
+    # Query chapters for the grade with topics
     stmt = select(
         DocumentORM.chapter,
         DocumentORM.subject,
-        func.count(DocumentORM.id).label("topic_count")
+        func.count(DocumentORM.id).label("topic_count"),
+        func.group_concat(DocumentORM.topic).label("topics")
     ).where(
         DocumentORM.grade == grade,
         DocumentORM.chapter.isnot(None)
@@ -441,16 +431,21 @@ async def get_chapters_by_grade(
     result = await db.execute(stmt)
     rows = result.fetchall()
     
-    print(f"DEBUG: Found {len(rows)} chapters for grade {grade}")
+    print(f"   Found {len(rows)} chapters")
+    for row in rows:
+        print(f"   - {row[0]} ({row[2]} topics)")
     
     chapters = [
         ChapterResponse(
             chapter=row[0],
             subject=row[1],
-            topic_count=row[2]
+            topic_count=row[2],
+            topics=[t.strip() for t in (row[3] or "").split(",") if t.strip()]
         )
         for row in rows
     ]
+    
+    print(f"   Returning {len(chapters)} chapters\n")
     
     return ChaptersResponse(
         grade=grade,

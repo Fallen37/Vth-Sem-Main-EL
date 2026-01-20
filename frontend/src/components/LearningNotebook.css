@@ -1,0 +1,289 @@
+.learning-notebook {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Header */
+.notebook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 3px solid #e5e7eb;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.notebook-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  letter-spacing: -1px;
+}
+
+.notebook-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.export-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.export-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.export-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-radius: 16px;
+  border: 2px dashed #d1d5db;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.empty-state h2 {
+  font-size: 24px;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.empty-state p {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Notebook Entries */
+.notebook-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.notebook-entry {
+  background: white;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.notebook-entry:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+/* Entry Header */
+.entry-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.entry-header:hover {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+}
+
+.entry-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.entry-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.entry-topic {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+  word-break: break-word;
+}
+
+.entry-meta {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.expand-icon {
+  font-size: 16px;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.entry-header:hover .expand-icon {
+  color: #3b82f6;
+}
+
+/* Entry Content */
+.entry-content {
+  padding: 20px 16px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+}
+
+.entry-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #374151;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* Stats Footer */
+.notebook-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 24px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-radius: 12px;
+  border: 2px solid #bae6fd;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0369a1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #0c4a6e;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .learning-notebook {
+    padding: 16px;
+  }
+
+  .notebook-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .notebook-title {
+    font-size: 24px;
+  }
+
+  .entry-header {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .entry-number {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .entry-topic {
+    font-size: 16px;
+  }
+
+  .entry-content {
+    padding: 16px 12px;
+  }
+
+  .notebook-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .learning-notebook {
+    padding: 12px;
+  }
+
+  .notebook-title {
+    font-size: 20px;
+  }
+
+  .notebook-subtitle {
+    font-size: 14px;
+  }
+
+  .export-btn {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  .entry-header {
+    padding: 12px;
+  }
+
+  .entry-topic {
+    font-size: 14px;
+  }
+
+  .entry-text {
+    font-size: 14px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+  }
+}

@@ -73,6 +73,9 @@ const Dashboard = () => {
         <div className="logo">🌟 Science Tutor</div>
         <div className="user-menu">
           <span className="user-name">Hi, {user?.name}!</span>
+          <button onClick={() => navigate('/profile')} className="profile-button">
+            👤 Profile
+          </button>
           <button onClick={handleLogout} className="logout-button">Sign Out</button>
         </div>
       </header>
@@ -85,7 +88,7 @@ const Dashboard = () => {
 
         {/* Avatar Chat Card - Main CTA */}
         <section className="avatar-section">
-          <div className="avatar-card" onClick={() => navigate('/chat')}>
+          <div className="avatar-card" onClick={() => navigate('/chapters')}>
             <div className="avatar-container">
               <div className="tutor-avatar">
                 <span className="avatar-emoji">🤖</span>

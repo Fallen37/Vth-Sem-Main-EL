@@ -21,6 +21,9 @@ class SessionORM(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.id"), nullable=False)
+    chapter: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    current_topic_index: Mapped[int] = mapped_column(Integer, default=0)
+    topics_list: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     started_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     ended_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     topics_covered: Mapped[list] = mapped_column(JSON, nullable=False, default=list)

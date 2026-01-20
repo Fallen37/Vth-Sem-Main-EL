@@ -106,6 +106,11 @@ export const chatApi = {
     return response.data;
   },
 
+  getSessionMessages: async (sessionId: string) => {
+    const response = await api.get(`/chat/session/${sessionId}/messages`);
+    return response.data;
+  },
+
   submitComprehension: async (data: {
     session_id: string;
     feedback: string;
@@ -159,6 +164,89 @@ export const contentApi = {
     n_results?: number;
   }) => {
     const response = await api.post('/content/query', data);
+    return response.data;
+  },
+};
+
+// Response Management API
+export const responsesApi = {
+  storeResponse: async (data: {
+    session_id: string;
+    topic: string;
+    explanation: string;
+    meta_text?: string;
+    content_text?: string;
+  }) => {
+    const response = await api.post('/responses/store', data);
+    return response.data;
+  },
+
+  updateFeedback: async (data: {
+    response_id: string;
+    liked: boolean;
+    feedback_text?: string;
+  }) => {
+    const response = await api.post('/responses/feedback', data);
+    return response.data;
+  },
+
+  regenerateExplanation: async (data: {
+    response_id: string;
+    new_explanation: string;
+    new_meta_text?: string;
+    new_content_text?: string;
+  }) => {
+    const response = await api.post('/responses/regenerate', data);
+    return response.data;
+  },
+
+  regenerateBlock: async (data: {
+    response_id: string;
+    block_id: string;
+    query: string;
+    previous_content: string;
+    topic_ref?: string;
+  }) => {
+    const response = await api.post('/responses/regenerate-block', data);
+    return response.data;
+  },
+
+  addBlock: async (data: {
+    response_id: string;
+    block_id: string;
+    content_text: string;
+    meta_text?: string;
+    topic_ref?: string;
+  }) => {
+    const response = await api.post('/responses/add-block', data);
+    return response.data;
+  },
+
+  getBlock: async (responseId: string, blockId: string) => {
+    const response = await api.get(`/responses/block/${responseId}/${blockId}`);
+    return response.data;
+  },
+
+  getNotebook: async (limit?: number) => {
+    const response = await api.get('/responses/notebook', { params: { limit } });
+    return response.data;
+  },
+
+  getPreferences: async () => {
+    const response = await api.get('/responses/preferences');
+    return response.data;
+  },
+
+  updatePreferences: async (data: {
+    preferred_difficulty?: string;
+    response_style?: string;
+  }) => {
+    const response = await api.put('/responses/preferences', data);
+    return response.data;
+  },
+
+  getSessionResponses: async (sessionId: string) => {
+    const response = await api.get(`/responses/session/${sessionId}`);
     return response.data;
   },
 };

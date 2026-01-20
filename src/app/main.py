@@ -56,6 +56,7 @@ def _load_routers():
         calm_router,
         websocket_router,
     )
+    from src.api.responses import router as responses_router
     
     app.include_router(auth_router)
     app.include_router(chat_router)
@@ -65,6 +66,7 @@ def _load_routers():
     app.include_router(guardian_router)
     app.include_router(calm_router)
     app.include_router(websocket_router)
+    app.include_router(responses_router)
 
 # Load routers after app creation
 _load_routers()
@@ -105,6 +107,7 @@ if FRONTEND_DIR.exists():
     @app.get("/login")
     @app.get("/register")
     @app.get("/dashboard")
+    @app.get("/chapters")
     @app.get("/chat")
     @app.get("/profile-setup")
     @app.get("/progress")

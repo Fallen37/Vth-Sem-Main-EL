@@ -72,7 +72,14 @@ async def send_message(
     Send a message and get a response from the AI tutor.
     
     Creates a new session if session_id is not provided.
+    Saves messages to database for history tracking.
     """
+    import time
+    from src.models.session import MessageORM
+    
+    start_time = time.time()
+    print(f"\n⏱️  [CHAT] Starting message processing at {start_time}")
+    
     user_id = UUID(user.id)
     
     # Get or create session
@@ -101,25 +108,104 @@ async def send_message(
         db.add(session)
         await db.commit()
     
-    # Use new RAG service instead of orchestrator
+    # Save user message to database
+    user_message = MessageORM(
+        session_id=str(session_id),
+        role=MessageRole.STUDENT,
+        input_type=InputType.TEXT,
+        content=request.content,
+    )
+    db.add(user_message)
+    await db.commit()
+    print(f"⏱️  [CHAT] Saved user message: {time.time() - start_time:.2f}s")
+    
+    # Load previous messages for context
+    result = await db.execute(
+        select(MessageORM)
+        .where(MessageORM.session_id == str(session_id))
+        .order_by(MessageORM.timestamp)
+    )
+    previous_messages = result.scalars().all()
+    print(f"⏱️  [CHAT] Loaded {len(previous_messages)} previous messages: {time.time() - start_time:.2f}s")
+    
+    # Build chat history for RAG service
+    chat_history = [
+        {
+            "role": "user" if msg.role == MessageRole.STUDENT else "assistant",
+            "content": msg.content
+        }
+        for msg in previous_messages
+    ]
+    
+    # Use RAG service with chat history
     from src.services.rag_service import RAGService
     
+    rag_start = time.time()
     rag_service = RAGService(db_session=db)
+    rag_service.chat_history = chat_history
     
     # Chat with RAG
     result = await rag_service.chat(
         query=request.content,
         grade=user.grade,
     )
+    rag_time = time.time() - rag_start
+    print(f"⏱️  [CHAT] RAG service completed: {rag_time:.2f}s")
+    
+    # Save AI response to database
+    ai_message = MessageORM(
+        session_id=str(session_id),
+        role=MessageRole.AI,
+        input_type=InputType.TEXT,
+        content=result['response'],
+    )
+    db.add(ai_message)
+    await db.commit()
+    print(f"⏱️  [CHAT] Saved AI response: {time.time() - start_time:.2f}s")
+    
+    # Analyze response to separate meta and educational content
+    from src.services.response_analyzer_service import ResponseAnalyzerService
+    from src.services.response_management_service import ResponseManagementService
+    
+    analyzer_start = time.time()
+    analyzer_service = ResponseAnalyzerService(db_session=db)
+    analysis = await analyzer_service.analyze_and_store(
+        response_text=result['response'],
+        session_id=session_id,
+        user_id=user_id,
+        topic=None,
+    )
+    analyzer_time = time.time() - analyzer_start
+    print(f"⏱️  [CHAT] Response analysis completed: {analyzer_time:.2f}s")
+    
+    # Store response for later retrieval and feedback
+    storage_start = time.time()
+    storage_service = ResponseManagementService(db_session=db)
+    stored_response = await storage_service.store_response(
+        user_id=user_id,
+        session_id=session_id,
+        topic=None,
+        explanation=result['response'],
+        meta_text=analysis.get('meta_text'),
+        content_text=analysis.get('content_text'),
+    )
+    storage_time = time.time() - storage_start
+    print(f"⏱️  [CHAT] Response storage completed: {storage_time:.2f}s")
+    
+    # Use only the educational content for the frontend
+    content_for_frontend = analysis.get('content_text', result['response'])
     
     # Build response
     response = ChatResponse(
-        message=result['response'],
+        message=content_for_frontend,
         sources=[],
         confidence=result.get('confidence', 0.7),
         suggested_responses=result.get('suggestions', []),
         is_explanation=True,
     )
+    
+    total_time = time.time() - start_time
+    print(f"⏱️  [CHAT] Total time: {total_time:.2f}s (RAG: {rag_time:.2f}s, Analysis: {analyzer_time:.2f}s, Storage: {storage_time:.2f}s, DB: {total_time - rag_time - analyzer_time - storage_time:.2f}s)\n")
     
     return response
 
@@ -281,3 +367,115 @@ async def create_session(
         user_id=user_id,
         is_new=True,
     )
+
+
+@router.get("/session/{session_id}/messages")
+async def get_session_messages(
+    session_id: UUID,
+    user: UserORM = Depends(require_current_user),
+    db: AsyncSession = Depends(get_db_session),
+):
+    """Get all messages for a session."""
+    from src.models.session import MessageORM
+    
+    user_id = UUID(user.id)
+    
+    # Verify session belongs to user
+    result = await db.execute(
+        select(SessionORM).where(
+            SessionORM.id == str(session_id),
+            SessionORM.user_id == str(user_id),
+        )
+    )
+    session = result.scalar_one_or_none()
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+    
+    # Get all messages
+    result = await db.execute(
+        select(MessageORM)
+        .where(MessageORM.session_id == str(session_id))
+        .order_by(MessageORM.timestamp)
+    )
+    messages = result.scalars().all()
+    
+    return {
+        "session_id": session_id,
+        "messages": [
+            {
+                "id": msg.id,
+                "role": "ai" if msg.role == MessageRole.AI else "user",
+                "content": msg.content,
+                "timestamp": msg.timestamp.isoformat(),
+            }
+            for msg in messages
+        ]
+    }
+
+
+@router.get("/api-status")
+async def get_api_status(
+    user: UserORM = Depends(require_current_user),
+):
+    """Get the status of all API keys."""
+    from src.services.api_key_manager import get_api_key_manager
+    
+    manager = get_api_key_manager()
+    return manager.get_status()
+
+
+@router.get("/analysis-history/{session_id}")
+async def get_analysis_history(
+    session_id: UUID,
+    user: UserORM = Depends(require_current_user),
+    db: AsyncSession = Depends(get_db_session),
+):
+    """Get analysis history for a session."""
+    from src.services.response_analyzer_service import ResponseAnalyzerService
+    
+    user_id = UUID(user.id)
+    
+    # Verify session belongs to user
+    result = await db.execute(
+        select(SessionORM).where(
+            SessionORM.id == str(session_id),
+            SessionORM.user_id == str(user_id),
+        )
+    )
+    session = result.scalar_one_or_none()
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+    
+    analyzer_service = ResponseAnalyzerService(db_session=db)
+    history = await analyzer_service.get_analysis_history(session_id)
+    
+    return {
+        "session_id": session_id,
+        "analysis_count": len(history),
+        "analyses": history,
+    }
+
+
+@router.get("/analytics")
+async def get_user_analytics(
+    user: UserORM = Depends(require_current_user),
+    db: AsyncSession = Depends(get_db_session),
+):
+    """Get analytics for the current user."""
+    from src.services.response_analyzer_service import ResponseAnalyzerService
+    
+    user_id = UUID(user.id)
+    
+    analyzer_service = ResponseAnalyzerService(db_session=db)
+    analytics = await analyzer_service.get_user_analytics(user_id)
+    
+    return {
+        "user_id": user_id,
+        "analytics": analytics,
+    }

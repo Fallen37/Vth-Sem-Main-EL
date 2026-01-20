@@ -1,0 +1,123 @@
+.message-bubble-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-ai {
+  justify-content: flex-start;
+}
+
+.message-user {
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-assistant {
+  justify-content: flex-start;
+}
+
+.message-avatar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+}
+
+.message-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+.message-user .message-content-wrapper {
+  align-items: flex-end;
+}
+
+.message-bubble {
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  word-wrap: break-word;
+}
+
+.message-bubble-ai {
+  background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+  color: #333;
+  border-left: 4px solid #667eea;
+}
+
+.message-bubble-user {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-right: 4px solid #667eea;
+}
+
+.message-bubble-assistant {
+  background: linear-gradient(135deg, #fff9c4 0%, #ffe0b2 100%);
+  color: #333;
+  border-left: 4px solid #ffa726;
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.message-role {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.message-emotion {
+  font-size: 1.2rem;
+  margin-left: 0.5rem;
+}
+
+.message-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+.message-time {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  text-align: right;
+}
+
+.message-user .message-time {
+  text-align: left;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .message-bubble-container {
+    gap: 0.5rem;
+  }
+
+  .message-content-wrapper {
+    max-width: 85%;
+  }
+
+  .message-bubble {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+}

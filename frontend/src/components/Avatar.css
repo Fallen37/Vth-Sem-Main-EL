@@ -1,0 +1,120 @@
+.avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.avatar-small {
+  width: 50px;
+}
+
+.avatar-medium {
+  width: 80px;
+}
+
+.avatar-large {
+  width: 120px;
+}
+
+.avatar-head {
+  font-size: 2rem;
+  width: 100%;
+  text-align: center;
+  animation: float 3s ease-in-out infinite;
+}
+
+.avatar-medium .avatar-head {
+  font-size: 3rem;
+}
+
+.avatar-large .avatar-head {
+  font-size: 4rem;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.avatar-expression {
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.avatar-medium .avatar-expression {
+  font-size: 2rem;
+}
+
+.avatar-large .avatar-expression {
+  font-size: 2.5rem;
+}
+
+.emotion-happy {
+  animation: bounce 0.6s ease;
+}
+
+.emotion-confused {
+  animation: shake 0.5s ease;
+}
+
+.emotion-thinking {
+  animation: pulse 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.avatar-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.avatar-ai .avatar-head {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.avatar-user .avatar-head {
+  filter: hue-rotate(20deg);
+}
+
+.avatar-assistant .avatar-head {
+  filter: hue-rotate(-20deg);
+}
