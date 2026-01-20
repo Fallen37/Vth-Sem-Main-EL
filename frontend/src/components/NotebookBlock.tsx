@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import './NotebookBlock.css';
 
 interface NotebookBlockProps {
@@ -120,7 +121,7 @@ export const NotebookBlock = ({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              {content}
+              <ReactMarkdown>{content}</ReactMarkdown>
             </motion.div>
           )}
         </AnimatePresence>

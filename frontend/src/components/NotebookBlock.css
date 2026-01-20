@@ -45,6 +45,152 @@
   padding-right: 24px;
 }
 
+/* Markdown Styling */
+.block-content h1,
+.block-content h2,
+.block-content h3,
+.block-content h4,
+.block-content h5,
+.block-content h6 {
+  margin: 16px 0 8px 0;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.4;
+}
+
+.block-content h1 {
+  font-size: 24px;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 8px;
+}
+
+.block-content h2 {
+  font-size: 20px;
+  border-bottom: 1px solid #c7d2fe;
+  padding-bottom: 6px;
+}
+
+.block-content h3 {
+  font-size: 18px;
+}
+
+.block-content h4 {
+  font-size: 16px;
+}
+
+.block-content h5,
+.block-content h6 {
+  font-size: 15px;
+}
+
+.block-content p {
+  margin: 8px 0;
+  line-height: 1.8;
+}
+
+.block-content strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+.block-content em {
+  font-style: italic;
+  color: #374151;
+}
+
+.block-content ul,
+.block-content ol {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+
+.block-content li {
+  margin: 4px 0;
+  line-height: 1.6;
+}
+
+.block-content ul li {
+  list-style-type: disc;
+}
+
+.block-content ol li {
+  list-style-type: decimal;
+}
+
+.block-content code {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #dc2626;
+}
+
+.block-content pre {
+  background: #1f2937;
+  color: #f9fafb;
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.block-content pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-size: 13px;
+}
+
+.block-content blockquote {
+  border-left: 4px solid #667eea;
+  padding-left: 16px;
+  margin: 12px 0;
+  color: #4b5563;
+  font-style: italic;
+}
+
+.block-content a {
+  color: #667eea;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.block-content a:hover {
+  color: #764ba2;
+}
+
+.block-content hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 16px 0;
+}
+
+.block-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+}
+
+.block-content th,
+.block-content td {
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.block-content th {
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.block-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
 /* Expand Indicator */
 .expand-indicator {
   position: absolute;
