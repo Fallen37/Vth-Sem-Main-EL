@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useLearning } from '../context/LearningContext';
 import { chatApi, responsesApi } from '../api/client';
 import './ExplanationCard.css';
@@ -129,7 +131,9 @@ export const ExplanationCard = ({
           transition={{ duration: 0.3 }}
         >
           <div className="explanation-text">
-            {explanation}
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {explanation}
+            </ReactMarkdown>
           </div>
         </motion.div>
       </AnimatePresence>

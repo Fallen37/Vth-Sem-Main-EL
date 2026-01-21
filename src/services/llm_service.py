@@ -50,6 +50,14 @@ class LLMService:
     ) -> str:
         """Generate response using Google Gemini API with key rotation."""
         try:
+            # Check if any API keys are available
+            manager_status = self.api_key_manager.get_status()
+            all_limited = all(not key['is_available'] for key in manager_status['keys'])
+            
+            if all_limited:
+                print("⚠️ All API keys are rate-limited. Using fallback response.")
+                return self._generate_from_context_formatted(query, context)
+            
             # Build system prompt
             if system_prompt is None:
                 system_prompt = self._get_default_system_prompt()
@@ -92,8 +100,15 @@ FORMAT YOUR RESPONSE AS:
 
 (Then STOP - do not add more sections)"""
             
-            # Call Gemini using the default model
-            model = self.client.GenerativeModel('gemini-2.5-flash')
+            # Call Gemini using the default model with generation config
+            generation_config = {
+                'max_output_tokens': 2048,  # Allow longer responses
+                'temperature': 0.7,
+            }
+            model = self.client.GenerativeModel(
+                'gemini-2.5-flash',
+                generation_config=generation_config
+            )
             response = model.generate_content(full_prompt)
             
             # Record successful request
@@ -111,7 +126,14 @@ FORMAT YOUR RESPONSE AS:
                 self.api_key_manager.mark_rate_limited()
                 # Try again with the new key
                 try:
-                    model = self.client.GenerativeModel('gemini-2.5-flash')
+                    generation_config = {
+                        'max_output_tokens': 2048,
+                        'temperature': 0.7,
+                    }
+                    model = self.client.GenerativeModel(
+                        'gemini-2.5-flash',
+                        generation_config=generation_config
+                    )
                     response = model.generate_content(full_prompt)
                     self.api_key_manager.record_request()
                     return response.text
@@ -147,31 +169,48 @@ FORMAT YOUR RESPONSE AS:
         if not context or context == "No relevant textbook content found for this question.":
             return f"I don't have specific information about '{query}' in the textbook. Could you try asking about a different topic or rephrasing your question?"
         
-        # Extract key information from context
-        lines = context.split('\n')
-        relevant_lines = [line for line in lines if line.strip() and len(line.strip()) > 20]
+        # Clean up the context - remove "From [chapter]:" prefixes and extra formatting
+        cleaned_context = context.replace('From ', '').replace(':\n', '\n')
         
-        # Create a formatted response with one section
-        if relevant_lines:
-            # Use first relevant line as title
-            title = relevant_lines[0][:50] if relevant_lines[0] else "Key Concept"
-            
-            response = f"**{title}**\n\n"
-            
-            # Add explanation from context
-            for line in relevant_lines[1:4]:
-                if line.strip():
-                    response += f"{line.strip()}\n\n"
-            
-            # Add key points
-            response += "**Key Points:**\n"
-            for line in relevant_lines[4:7]:
-                if line.strip():
-                    response += f"• {line.strip()}\n"
-            
-            return response
+        # Split into sentences and clean up
+        sentences = []
+        for line in cleaned_context.split('\n'):
+            line = line.strip()
+            if line and len(line) > 20:
+                # Remove special characters and clean up
+                line = line.replace('\uf06e', '').replace('Key Points:', '').strip()
+                # Split on periods to get individual sentences
+                if line and not line.startswith('•'):
+                    # Handle sentences that end with periods
+                    parts = line.split('. ')
+                    for part in parts:
+                        part = part.strip()
+                        if part and len(part) > 20:
+                            # Add period back if it was removed
+                            if not part.endswith('.'):
+                                part += '.'
+                            sentences.append(part)
         
-        return self._generate_from_context(query, context)
+        if not sentences:
+            return "I found some information in the textbook, but I'm having trouble processing it right now. Please try again in a moment."
+        
+        # Build a coherent response with proper formatting
+        response = "**From the Textbook:**\n\n"
+        
+        # Add main content - each sentence on its own line for better readability
+        for i, sentence in enumerate(sentences[:4]):
+            response += f"{sentence}\n\n"
+        
+        # Add key points if available
+        if len(sentences) > 4:
+            response += "**Key Points:**\n\n"
+            for sentence in sentences[4:7]:
+                # Format as bullet points
+                response += f"• {sentence}\n\n"
+        
+        response += "*Note: This is a simplified view from the textbook. For a more detailed explanation, please try again later.*"
+        
+        return response
     
     def _get_default_system_prompt(self) -> str:
         """Get the default system prompt for the tutor."""
@@ -205,7 +244,14 @@ Response: {response}
 
 Return ONLY a JSON array of 3 strings, nothing else. Example: ["Question 1?", "Question 2?", "Question 3?"]"""
             
-            model = self.client.GenerativeModel('gemini-2.5-flash')
+            generation_config = {
+                'max_output_tokens': 512,  # Shorter for suggestions
+                'temperature': 0.7,
+            }
+            model = self.client.GenerativeModel(
+                'gemini-2.5-flash',
+                generation_config=generation_config
+            )
             response = model.generate_content(prompt)
             
             import json

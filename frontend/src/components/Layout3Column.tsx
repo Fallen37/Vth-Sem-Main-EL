@@ -181,7 +181,7 @@ export const Layout3Column = ({
             setAiLoading(true);
             const response = await chatApi.sendMessage({
               session_id: sessionId,
-              content: `Great! The student understood the previous subtopic. Now explain the NEXT subtopic of "${chapter}". Explain only ONE subtopic, then stop and wait for confirmation.`,
+              content: `Understood. Move onto the next topic`,
               input_type: 'TEXT',
             });
 
@@ -211,7 +211,7 @@ export const Layout3Column = ({
             setAiLoading(true);
             const response = await chatApi.sendMessage({
               session_id: sessionId,
-              content: `The student didn't understand. Please explain the same subtopic more simply, using easier words and more examples.`,
+              content: `Re explain the topic in simpler terms`,
               input_type: 'TEXT',
             });
 
@@ -299,7 +299,7 @@ export const Layout3Column = ({
           <AIAvatarPanel
             message={aiMessage}
             isLoading={aiLoading}
-            avatar="🤖"
+            avatar="/ai-avatar-1.png"
           />
         </div>
 
@@ -320,7 +320,7 @@ export const Layout3Column = ({
             onSendMessage={handleSendMessage}
             onFeedback={handleFeedback}
             isLoading={userLoading}
-            avatar="👤"
+            avatar="/user-avatar-1.png"
             userName="You"
           />
         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './UserAvatarPanel.css';
+import userAvatar from '../assets/avatars/user-avatar-1.png';
 
 interface UserAvatarPanelProps {
   userMessage: string;
@@ -16,7 +17,7 @@ export const UserAvatarPanel = ({
   onSendMessage,
   onFeedback,
   isLoading,
-  avatar = '👤',
+  avatar = userAvatar, // Use imported image
   userName = 'You',
 }: UserAvatarPanelProps) => {
   const [inputValue, setInputValue] = useState('');
@@ -48,7 +49,7 @@ export const UserAvatarPanel = ({
       {/* Avatar */}
       <div className="avatar-container">
         <div className="avatar-circle user-avatar">
-          {avatar}
+          <img src={avatar} alt={userName} className="avatar-image" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
         <div className="avatar-label">{userName}</div>
       </div>
@@ -56,7 +57,7 @@ export const UserAvatarPanel = ({
       {/* Message Display */}
       <div className="message-area">
         <AnimatePresence mode="wait">
-          {userMessage ? (
+          {userMessage && (
             <motion.div
               key={userMessage}
               className="message-bubble user-bubble"
@@ -68,16 +69,6 @@ export const UserAvatarPanel = ({
               <div className="message-content">
                 {userMessage}
               </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="empty"
-              className="empty-state"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <p>Your message will appear here</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -121,16 +112,6 @@ export const UserAvatarPanel = ({
           disabled={isLoading || isSending}
           rows={3}
         />
-        <motion.button
-          className="send-btn"
-          onClick={handleSend}
-          disabled={!inputValue.trim() || isLoading || isSending}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {isSending ? '⏳' : '📤'}
-          <span>{isSending ? 'Sending...' : 'Send'}</span>
-        </motion.button>
       </div>
     </div>
   );

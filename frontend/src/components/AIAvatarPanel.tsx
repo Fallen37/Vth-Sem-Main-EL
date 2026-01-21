@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import './AIAvatarPanel.css';
+import aiAvatar from '../assets/avatars/ai-avatar-1.png';
 
 interface AIAvatarPanelProps {
   message: string;
@@ -7,13 +8,13 @@ interface AIAvatarPanelProps {
   avatar?: string;
 }
 
-export const AIAvatarPanel = ({ message, isLoading, avatar = '🤖' }: AIAvatarPanelProps) => {
+export const AIAvatarPanel = ({ message, isLoading, avatar = aiAvatar }: AIAvatarPanelProps) => {
   return (
     <div className="ai-avatar-panel">
       {/* Avatar */}
       <div className="avatar-container">
         <div className="avatar-circle ai-avatar">
-          {avatar}
+          <img src={avatar} alt="AI Tutor" className="avatar-image" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         </div>
         <div className="avatar-label">AI Tutor</div>
       </div>

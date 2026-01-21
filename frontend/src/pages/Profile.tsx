@@ -12,7 +12,7 @@ const Profile = () => {
   const [grade, setGrade] = useState(user?.grade || 6);
   const [educationBoard, setEducationBoard] = useState('CBSE');
   const [gender, setGender] = useState('');
-  const [avatar, setAvatar] = useState('👤');
+  const [avatar, setAvatar] = useState('/user-avatar-1.png');
 
   // Explicit Profiling State
   const [explicitProfile, setExplicitProfile] = useState(
@@ -39,7 +39,10 @@ const Profile = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
-  const avatarOptions = ['👤', '👨', '👩', '🧑', '👦', '👧', '🧒', '👶', '🤖', '🦸', '🧙', '🧚'];
+  const avatarOptions = [
+    { id: 1, path: '/user-avatar-1.png', name: 'Avatar 1' },
+    { id: 2, path: '/user-avatar-2.png', name: 'Avatar 2' },
+  ];
 
   const handleSaveChanges = async () => {
     setIsSaving(true);
@@ -89,17 +92,24 @@ const Profile = () => {
             <div className="info-item avatar-item">
               <label className="info-label">Avatar</label>
               <div className="avatar-selector">
-                <div className="current-avatar">{avatar}</div>
+                <div className="current-avatar">
+                  <img src={avatar} alt="Current Avatar" className="avatar-preview" />
+                </div>
                 <div className="avatar-options">
-                  {avatarOptions.map((av) => (
-                    <button
-                      key={av}
-                      className={`avatar-option ${avatar === av ? 'selected' : ''}`}
-                      onClick={() => setAvatar(av)}
-                    >
-                      {av}
-                    </button>
-                  ))}
+                  <div className="avatar-options-label">Choose Avatar:</div>
+                  <div className="avatar-options-grid">
+                    {avatarOptions.map((av) => (
+                      <button
+                        key={av.id}
+                        className={`avatar-option ${avatar === av.path ? 'selected' : ''}`}
+                        onClick={() => setAvatar(av.path)}
+                        title={av.name}
+                        type="button"
+                      >
+                        <img src={av.path} alt={av.name} className="avatar-option-img" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

@@ -14,9 +14,14 @@ class APIKeyManager:
         """Initialize API key manager with available keys."""
         # API keys in order of preference
         self.api_keys = [
+            "AIzaSyA3blRLFMMTvwTutVQGaKwP6lDeF92JhYE",  # Fresh key - use first
             "AIzaSyAz4jwDFwxrVCmU4SVOAMIRLrxtF2oFvQA",  # Original key
-            "AIzaSyCulZGm1P382VhSACxJs94qrRxIZXyZj3c",  # New key 1
-            "AIzaSyDGKMTlJRpdV1zyfFe-JF87oP7BXQ9nqaQ",  # New key 2
+            "AIzaSyCulZGm1P382VhSACxJs94qrRxIZXyZj3c",  # Key 1
+            "AIzaSyDGKMTlJRpdV1zyfFe-JF87oP7BXQ9nqaQ",  # Key 2
+            "AIzaSyAPUDAOn-OCatAsOos4A-iPEZAW6G1-XIM",  # New key 3
+            "AIzaSyDyfYjjhEX2cuc8nkdDHtUO36cumLhbzp4",  # New key 4
+            "AIzaSyAe2XtrWko7nTY9Vk6QaPcZCQq4KOOHLR0",  # New key 5
+            "AIzaSyB_MvnEBd_ExWcr19F9j9CzYiK-GySxT6s",  # New key 6
         ]
         
         # Track usage for each key

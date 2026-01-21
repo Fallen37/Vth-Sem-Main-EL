@@ -1,4 +1,6 @@
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import Avatar from './Avatar';
 import './MessageBubble.css';
 import type { Message, EmotionState } from '../types/chat';
@@ -45,7 +47,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
             )}
           </div>
           <div className="message-text">
-            {message.content}
+            {message.role === 'ai' ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+            ) : (
+              message.content
+            )}
           </div>
           <div className="message-time">
             {message.timestamp.toLocaleTimeString([], { 

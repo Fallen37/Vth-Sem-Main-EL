@@ -354,7 +354,7 @@ Please provide a helpful, accurate answer based on the context above."""
                     {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.7,
-                max_tokens=1000,
+                max_tokens=2048,  # Increased from 1000 to allow complete responses
             )
             return response.choices[0].message.content
         except Exception as e:
